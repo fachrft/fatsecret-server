@@ -37,7 +37,7 @@ exports.searchFood = (accessToken, searchQuery, locale) => {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
             form: {
-                method: "foods.search",
+                method: "foods.search.v3",
                 search_expression: searchQuery,
                 format: "json",
                 locale: locale,
@@ -75,7 +75,7 @@ exports.findFoodById = (accessToken, id) => {
     });
 };
 
-exports.searchRecipes = (accessToken, searchQuery) => {
+exports.searchRecipes = (accessToken, searchQuery, recipeTypes) => {
     return new Promise((resolve, reject) => {
         const options = {
             method: "POST",
@@ -87,6 +87,8 @@ exports.searchRecipes = (accessToken, searchQuery) => {
             form: {
                 method: "recipes.search.v3",
                 search_expression: searchQuery,
+                recipe_types: recipeTypes,
+                max_results: 50,
                 format: "json",
             },
             json: true,
@@ -98,58 +100,29 @@ exports.searchRecipes = (accessToken, searchQuery) => {
     });
 };
 
-exports.processNaturalLanguage = (accessToken, input, region = "US", language = "en", includeFoodData = true, eatenFoods = []) => {
+exports.findRecipeById = (accessToken, id) => {
     return new Promise((resolve, reject) => {
         const options = {
             method: "POST",
-            url: "https://platform.fatsecret.com/rest/natural-language-processing/v1",
+            url: "https://platform.fatsecret.com/rest/server.api",
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "Content-Type": "application/x-www-form-urlencoded",
             },
             form: {
-                user_input: input,
-                region,
-                language,
-                include_food_data: includeFoodData,
-                eaten_foods: JSON.stringify(eatenFoods)
+                method: "recipe.get.v2",
+                recipe_id: id,
+                format: "json",
             },
-            
-            json: true
+            json: true,
         };
-
         request(options, (error, response, body) => {
             if (error) return reject(error);
-            if (response.statusCode !== 200) {
-                return reject(new Error(`Failed with status ${response.statusCode}: ${body.message}`));
-            }
             resolve(body);
         });
     });
 };
 
-exports.imageRecognition = (accessToken, imageBase64) => {
-    return new Promise((resolve, reject) => {
-        const options = {
-            method: "POST",
-            url: "https://platform.fatsecret.com/rest/image-recognition/v1",
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/form-data",
-            },
-            form: {
-                image: imageBase64, // gambar dalam format Base64
-                format: "json",
-            },
-            json: true,
-        };
-
-        request(options, (error, response, body) => {
-            if (error) return reject(error);
-            resolve(body); // mengembalikan hasil pengenalan gambar
-        });
-    });
-};
 
 
 
